@@ -1,0 +1,99 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag and Drop Puzzle Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            gap: 5px;
+            margin-top: 50px;
+        }
+        .piece {
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .piece img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border: 2px solid #000;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+    </style>
+    </head>
+    <body>
+    <div class="container" id="container">
+    </div>
+    <div class="popup" id="popup">
+        <h2>Parabéns! Você ganhou!</h2>
+    </div>
+    <script>
+        const container = document.getElementById('container');
+        const popup = document.getElementById('popup');
+        let draggedPiece = null;
+
+        // Create puzzle pieces
+        const pieces = [];
+        for (let i = 1; i <= 16; i++) {
+            const piece = document.createElement('div');
+            piece.classList.add('piece');
+            piece.setAttribute('draggable', true);
+            const image = document.createElement('img');
+            image.src = `part${i}.png`; // Assuming images are named part1.png, part2.png, ...
+            piece.appendChild(image);
+            piece.addEventListener('dragstart', () => {
+                draggedPiece = piece;
+            });
+            piece.addEventListener('dragover', (event) => {
+                event.preventDefault();
+            });
+            piece.addEventListener('drop', () => {
+                if (draggedPiece !== null && draggedPiece !== piece) {
+                    const temp = piece.firstChild.src;
+                    piece.firstChild.src = draggedPiece.firstChild.src;
+                    draggedPiece.firstChild.src = temp;
+                    checkWin();
+                }
+            });
+            pieces.push(piece);
+        }
+        pieces.sort(() => Math.random() - 0.5); // Shuffle pieces
+
+        pieces.forEach((piece) => container.appendChild(piece));
+
+        function checkWin() {
+            let win = true;
+            pieces.forEach((piece, index) => {
+                const expectedImageSrc = `part${index + 1}.png`;
+                if (piece.firstChild.src.slice(-expectedImageSrc.length) !== expectedImageSrc) {
+                    win = false;
+                }
+            });
+            if (win) {
+                popup.style.display = 'block';
+            }
+        }
+    </script>
+    </body>
+    </html>
